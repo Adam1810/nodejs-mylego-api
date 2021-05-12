@@ -5,9 +5,13 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cors = require('cors');
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const setRouter = require('./routes/setsRoutes');
+const swaggerDefinition = require('./utils/swaggerDefinition');
 
 const app = express();
 // 1) GLOBAL MIDDLEWARES
@@ -35,6 +39,10 @@ app.use(mongoSanitize());
 // Data sanitization against XSS
 app.use(xss());
 
+//CORS
+app.use(cors());
+app.options('*', cors());
+
 // Prevent parameter pollution
 app.use(
   hpp({
@@ -52,8 +60,27 @@ app.use((req, res, next) => {
   next();
 });
 
+//Swagger
+
+// const swaggerDefinition = {
+//   openapi: '3.0.0',
+//   info: {
+//     title: 'Express API for JSONPlaceholder',
+//     version: '1.0.0',
+//   },
+// };
+
+const options = {
+  swaggerDefinition,
+  // Paths to files containing OpenAPI definitions
+  apis: ['./routes/*.js'],
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
 // 3) ROUTES
 app.use('/api/v1/sets', setRouter);
+app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

@@ -1,7 +1,7 @@
-const Set = require("./../models/setsModel");
-const APIFeatures = require("./../utils/apiFeatures");
-const catchAsync = require("./../utils/catchAsync");
-const AppError = require("./../utils/appError");
+const Set = require('../models/setsModel');
+const APIFeatures = require('../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 // exports.aliasTopTours = (req, res, next) => {
 //   req.query.limit = "5";
@@ -20,8 +20,8 @@ exports.getAllSets = catchAsync(async (req, res, next) => {
 
   // SEND RESPONSE
   res.status(200).json({
-    status: "success",
-    results: tours.length,
+    status: 'success',
+    results: sets.length,
     data: {
       sets,
     },
@@ -29,15 +29,22 @@ exports.getAllSets = catchAsync(async (req, res, next) => {
 });
 
 exports.getSets = catchAsync(async (req, res, next) => {
-  const set = await Set.findById(req.params.id);
+  // if (!req.params.id) {
+  // const set = await Set.findById(req.params.id);
+
+  // } else {
+  const set = await Set.findOne({ setId: req.params.id });
+  //   console.log(req.params.setId);
+  // }
+
   // Tour.findOne({ _id: req.params.id })
 
   if (!set) {
-    return next(new AppError("No set found with that ID", 404));
+    return next(new AppError('No set found with that ID', 404));
   }
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: {
       set,
     },
@@ -48,7 +55,7 @@ exports.createSet = catchAsync(async (req, res, next) => {
   const newSet = await Set.create(req.body);
 
   res.status(201).json({
-    status: "success",
+    status: 'success',
     data: {
       set: newSet,
     },
@@ -62,11 +69,11 @@ exports.updateSet = catchAsync(async (req, res, next) => {
   });
 
   if (!set) {
-    return next(new AppError("No set found with that ID", 404));
+    return next(new AppError('No set found with that ID', 404));
   }
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: {
       set,
     },
@@ -77,11 +84,11 @@ exports.deleteSet = catchAsync(async (req, res, next) => {
   const set = await Set.findByIdAndDelete(req.params.id);
 
   if (!set) {
-    return next(new AppError("No set found with that ID", 404));
+    return next(new AppError('No set found with that ID', 404));
   }
 
   res.status(204).json({
-    status: "success",
+    status: 'success',
     data: null,
   });
 });
